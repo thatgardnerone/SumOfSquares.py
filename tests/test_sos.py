@@ -91,8 +91,8 @@ class TestSoS(unittest.TestCase):
         self.assertAlmostEqual(prob[t].value, 0.8472135957347698, 5)
 
         # Test pseudoexpectations
-        self.assertAlmostEqual(c.pexpect((1.0*x**2 + y**2 + z**2)**3), 1)
-        self.assertAlmostEqual(c.pexpect(f), 0.8472135957347698, 5)
+        self.assertAlmostEqual(c.pexpect((1.0*x**2 + y**2 + z**2)**3), 1, delta=1e-7)
+        self.assertAlmostEqual(c.pexpect(f), 0.8472135957347698, delta=1e-7)
 
     def test_chebyshev(self):
         # Compute leading coefficient of Chebyshev polynomials
@@ -193,7 +193,7 @@ class TestSoS(unittest.TestCase):
         prob.add_matrix_sos_constraint(sp.eye(n) - M, [x, y])
         prob.set_objective('max', prob.sym_to_var(M[0].coeff(x**2)))
         prob.solve(solver=self.solver)
-        self.assertAlmostEqual(prob.subs_with_sol(M)[0].coeff(x**2), 0, 7)
+        self.assertAlmostEqual(prob.subs_with_sol(M)[0].coeff(x**2), 0., delta=1e-7)
 
         P = sp.Matrix([ [x**2-x*x+2, x], [x, x**2]])
         prob = SOSProblem()
