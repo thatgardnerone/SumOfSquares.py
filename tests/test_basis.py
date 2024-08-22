@@ -40,3 +40,12 @@ class TestBasis(unittest.TestCase):
         for i in range(n):
             for j in range(n):
                 self.assertEqual(M[i,j], M[j,i])
+
+    def test_non_square_matrix_var(self):
+        """A matrix variable may not be square. If so, it will not be symmetric."""
+        x, y = sp.symbols('x y')
+        n, m = 3, 4
+        deg = 2
+        M = matrix_variable('M', [x, y], deg, (n, m), hom=False)
+
+        self.assertEqual(M.shape, (n, m))

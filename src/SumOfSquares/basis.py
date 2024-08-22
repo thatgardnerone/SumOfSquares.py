@@ -4,7 +4,7 @@ import sympy as sp
 import numpy as np
 import math
 from collections import defaultdict
-from typing import Iterable, Tuple, List
+from typing import Iterable, Tuple, List, Union
 
 from .util import *
 
@@ -127,12 +127,24 @@ def poly_variable(name: str, variables: List[sp.Symbol], deg: int,
     return sum(coeff * prod(var**power for var, power in zip(variables, monom))
                for monom, coeff in zip(basis, coeffs))
 
-def matrix_variable(name: str, variables: List[sp.Symbol], deg: int, dim: int,
+
+def matrix_variable(name: str, variables: List[sp.Symbol], deg: int, dim: Union[int, tuple],
                     hom: bool=False, sym: bool=True) -> sp.Matrix:
-    '''Returns a (symmetric) matrix variable of size dim x dim'''
-    arr = [[None] * dim for _ in range(dim)]
-    for i in range(dim):
-        for j in range(dim):
+    '''
+    Returns a matrix variable.
+    If the specified dimension is a tuple, then the matrix is of size dim_1 x dim_2,
+    otherwise it is of size dim x dim.
+
+    Note: If the matrix is not square, it cannot be symmetric.
+    '''
+    dim_1, dim_2 = (dim, dim) if isinstance(dim, int) else dim
+
+    sym = sym and dim_1 == dim_2
+
+    arr = np.empty((dim_1, dim_2), dtype=object)
+
+    for i in range(dim_1):
+        for j in range(dim_2):
             if j < i and sym:
                 arr[i][j] = arr[j][i]
             else:
