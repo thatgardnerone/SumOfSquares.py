@@ -3,6 +3,7 @@ from __future__ import annotations # for type hinting Basis
 import sympy as sp
 import numpy as np
 import math
+from functools import lru_cache
 from collections import defaultdict
 from typing import Iterable, Tuple, List, Union
 
@@ -39,18 +40,23 @@ class Basis():
         self.nvars = len(monoms[0])
         self.is_hom = sum(sum(m) != self.deg for m in self.monoms) == 0
 
-        # A map from a monomial m (represented as tuple) to list of pairs (i, j)
-        # for all such pairs where m = basis[i]*basis[j].
-        self.sos_sym_entries = defaultdict(list)
-        for i, bi in enumerate(self):
-            for j, bj in enumerate(self):
-                 self.sos_sym_entries[sum_tuple(bi, bj)].append((i, j))
 
     def __len__(self) -> int:
         return len(self.monoms)
 
     def __iter__(self) -> Iterable[Tuple[int]]:
         return iter(self.monoms)
+
+    @property
+    @lru_cache()
+    def sos_sym_entries(self):
+        # A map from a monomial m (represented as tuple) to list of pairs (i, j)
+        # for all such pairs where m = basis[i]*basis[j].
+        sos_sym_entries = defaultdict(list)
+        for i, bi in enumerate(self):
+            for j, bj in enumerate(self):
+                 sos_sym_entries[sum_tuple(bi, bj)].append((i, j))
+        return sos_sym_entries
 
     def from_degree(nvars: int, deg: int, hom: bool=False) -> Basis:
         '''Constructs a basis by specifying the number of variables and degree'''

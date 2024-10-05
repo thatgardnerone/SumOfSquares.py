@@ -14,7 +14,7 @@ __pycache__
 *.out
 
 # Project specific
-/Untitled.ipynb
+/examples
 /.ipynb_checkpoints/
 /build/
 /dist/

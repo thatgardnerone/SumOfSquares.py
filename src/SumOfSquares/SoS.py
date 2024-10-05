@@ -162,7 +162,7 @@ def poly_opt_prob(vars       : List[sp.Symbol],
                   deg        : Optional[int] = None,
                   sparse     : bool = False) -> SOSProblem:
     '''Formulates and returns a degree DEG Sum-of-Squares relaxation of a polynomial
-    optimization problem in variables VARS that mininizes OBJ subject to
+    optimization problem in variables VARS that minimizes OBJ subject to
     equality constraints EQS (g(x) = 0) and inequality constraints INEQS (h(x)
     >= 0). INEQ_PRODS determines if products of inequalities are used. SPARSE
     uses Newton polytope reduction to do computations in a reduced-size
