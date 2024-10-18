@@ -4,7 +4,7 @@ import math
 import picos as pic
 import sympy as sp
 import numpy as np
-from picos import Problem
+from picos import Problem, RealVariable
 from collections import defaultdict
 from operator import floordiv, and_
 from itertools import combinations
@@ -98,6 +98,35 @@ class SOSProblem(Problem):
 
         pic_const = self.add_constraint(Q >> 0)
         return SOSConstraint(pic_const, Q, basis, variables, deg)
+
+    def add_matrix_constraint(self, mat: sp.Matrix, variables: List[sp.Symbol]) -> List[Constraint]:
+        """
+        Add a matrix constraint to the problem.
+        """
+
+        variables = sorted(variables, key=str) # To lex order
+
+        constraints = []
+
+        n, m = mat.shape
+        for i in range(n):
+            for j in range(m):
+                expr = mat[i, j]
+
+                poly = sp.poly(expr, variables)
+                deg = poly.total_degree()
+                mono_to_coeffs = dict(zip(poly.monoms(), map(self.sp_to_picos, poly.coeffs())))
+                basis = Basis.from_poly_lex(poly, sparse=True)
+
+                Q = RealVariable(f"Q_{i}_{j}", (len(basis), len(basis)))
+                for mono, pairs in basis.sos_sym_entries.items():
+                    coeff = mono_to_coeffs.get(mono, 0)
+                    self.add_constraint(sum(Q[k, l] for k, l in pairs) == coeff)
+
+                eq_const = self.add_constraint(Q == 0)
+                constraints.append(SOSConstraint(eq_const, Q, basis, variables, deg))
+
+        return constraints
 
     def add_matrix_sos_constraint(self, mat: sp.Matrix, variables: List[sp.Symbol],
                                   name: str='', sparse: bool=False, aux_var_name: str=''
